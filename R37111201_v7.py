@@ -5,7 +5,7 @@ with open('作業/第一次/breast-cancer.txt', 'r') as file:
     lines = file.readlines()
 # 自定義column name
 column_names = ['Class', 'age', 'menopause', 'tumor-size', 'inv-nodes', 'node-caps', 'deg-malig', 'breast', 'breast-quad', 'irradiat']
-non_column_names = [0,1,2,3,4,5,6,7,8]
+Attributes = [0,1,2,3,4,5,6,7,8]
 # 初始化字典
 raw_data = []
 Ground_tru = []
@@ -13,14 +13,14 @@ Ground_tru = []
 for line in lines:
     row = line.strip().split(',')
     Ground_tru.append(row.pop(0))
-    if len(row) == len(non_column_names):
-            instance = dict(zip(non_column_names, row))
+    if len(row) == len(Attributes):
+            instance = dict(zip(Attributes, row))
             raw_data.append(instance)
 #Ground_tru = [G["Class"]for G in data ]   #Ground_truth
 
 #columns_to_extract = [key for key in data[0].keys() if key != 'Class']
 #Attributes = [{column: row[column] for column in columns_to_extract} for row in data]   #排除Class,擷取資料
-Attributes = list(range(0, len(non_column_names)))
+# Attributes = list(range(0, len(non_column_names)))
 
 
 def probability(data):   #計算類別資料發生率公式
@@ -40,7 +40,7 @@ def probability(data):   #計算類別資料發生率公式
 def H_entropy(data):   # 計算Entropye公式_H(X),H(Y)
     # entropy_value = -sum(p * math.log2(p) for p in probability(data).values())
     probs = probability(data)
-    probs_values = [prob[1] for prob in probs.items()]
+    probs_values = [prob[1] for prob in probs.items()] # 抽出字典value到list中，[0]是key [1]是value
 
 
     entropy_value = -sum(p * math.log2(p) for p in probs_values)
@@ -101,7 +101,7 @@ fwd_best_goodness = 0.0
 
 print("\n開始 Forward Feature Selection\n")
 
-while True:
+while True:  # while迴圈須設定statement，for迴圈跑完全部資料後自動結束
     feature_to_add = None
     best_feature_goodness = 0.0
 
@@ -116,11 +116,11 @@ while True:
             # candidate_features = [[sample[feature] for feature in features_to_try for sample in raw_data]]
             candidate_features = []
             for feature in features_to_try:
-                all_feature = []
-                for sample in raw_data:
-                    select_raw_data = sample[feature]
-                    all_feature.append(select_raw_data)
-                candidate_features.append(all_feature)
+                all_feature = [] # 277比資料都抽完再一次放進去candidate_features
+                for sample in raw_data: #增強for循環，逐步抽出raw_data的每個比資料，全部抽完結束回圈
+                    # select_raw_data = sample[feature]
+                    all_feature.append(sample[feature]) #逐步把每比資料對應的特徵值加到all_features
+                candidate_features.append(all_feature) #把all_features的資料加到condidate_features
 
             # 計算Goodness值
             goodness = Goodness(candidate_features, features_to_try)
@@ -145,7 +145,7 @@ while True:
 
       # 輸出已選特徵和Goodness值，使用列名而不是索引
     selected_feature_names = [column_names[i +1] for i in fwd_selected_features]
-    print(f"Selected Features: {selected_feature_names}")
+    print(f"Selected Features: {selected_feature_names}") #加入f可以表達式，print出{}內的值
     print(f"Best Goodness: {fwd_best_goodness:.4f}")
 
 print("\nForward Feature Selection完成。最佳特徵列名:\n", selected_feature_names)
@@ -170,8 +170,8 @@ while True:
         for feature in features_to_try:
             all_feature = []
             for sample in raw_data:
-                select_raw_data = sample[feature]
-                all_feature.append(select_raw_data)
+                # select_raw_data = sample[feature]
+                all_feature.append(sample[feature])
             candidate_features.append(all_feature)
 
         # 計算Goodness值
